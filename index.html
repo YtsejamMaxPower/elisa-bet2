@@ -133,7 +133,7 @@
             if (results[0] === results[1] && results[1] === results[2]) {
                 const winAmount = getWinAmount(results[0], bet);
                 credits += winAmount;
-                message.textContent = 'Feito!!!';
+                message.textContent = `Feito!!! você ganhou ${winAmount}`;
                 slots.forEach(slot => slot.classList.add('winning'));
             } else {
                 message.textContent = 'Tente novamente...';

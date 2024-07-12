@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elisa Bet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        #slot-machine {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .slot {
+            width: 100px;
+            height: 100px;
+            border: 2px solid white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            background-color: black;
+        }
+
+        .winning {
+            border: 5px solid red;
+        }
+
+        #message {
+            font-size: 24px;
+            margin-bottom: 20px;
+            height: 30px;
+        }
+
+        #stats {
+            margin-bottom: 20px;
+        }
+
+        #spin-btn, #bet-amount {
+            font-size: 18px;
+            padding: 10px 20px;
+            margin: 5px;
+        }
+
+        #spin-btn {
+            cursor: pointer;
+        }
+
+        @media (max-width: 480px) {
+            .slot {
+                width: 80px;
+                height: 80px;
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Elisa Bet</h1>
+        <div id="slot-machine">
+            <div class="slot" id="slot1"></div>
+            <div class="slot" id="slot2"></div>
+            <div class="slot" id="slot3"></div>
+        </div>
+        <div id="message"></div>
+        <div id="stats">
+            <p>Você tem <span id="credits">1000</span> créditos</p>
+        </div>
+        <input type="number" id="bet-amount" min="10" max="100" step="10" value="10">
+        <button id="spin-btn">Apostar</button>
+    </div>
+
+    <script>
+        const symbols = ['🐵', '🦁', '🐘', '🦒', '🦛', '🐯'];
+        const slots = document.querySelectorAll('.slot');
+        const message = document.getElementById('message');
+        const creditsElement = document.getElementById('credits');
+        const spinBtn = document.getElementById('spin-btn');
+        const betAmount = document.getElementById('bet-amount');
+
+        let credits = 1000;
+        let isSpinning = false;
+
+        spinBtn.addEventListener('click', spin);
+
+        function spin() {
+            const bet = parseInt(betAmount.value);
+            if (isSpinning || credits < bet) return;
+            
+            isSpinning = true;
+            credits -= bet;
+            updateStats();
+            
+            message.textContent = '';
+            slots.forEach(slot => slot.classList.remove('winning'));
+            
+            let spins = 0;
+            const maxSpins = 20;
+            const spinInterval = setInterval(() => {
+                slots.forEach(slot => {
+                    slot.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                });
+                
+                spins++;
+                if (spins >= maxSpins) {
+                    clearInterval(spinInterval);
+                    checkWin(bet);
+                    isSpinning = false;
+                }
+            }, 100);
+        }
+
+        function checkWin(bet) {
+            const results = Array.from(slots).map(slot => slot.textContent);
+            
+            if (results[0] === results[1] && results[1] === results[2]) {
+                const winAmount = getWinAmount(results[0], bet);
+                credits += winAmount;
+                message.textContent = 'Feito!!!';
+                slots.forEach(slot => slot.classList.add('winning'));
+            } else {
+                message.textContent = 'Tente novamente...';
+            }
+            
+            updateStats();
+        }
+
+        function getWinAmount(symbol, bet) {
+            switch (symbol) {
+                case '🐯': return bet * 1000;
+                case '🦛': return bet * 500;
+                case '🦒': return bet * 400;
+                case '🐘': return bet * 300;
+                case '🦁': return bet * 200;
+                case '🐵': return bet * 1.5;
+                default: return 0;
+            }
+        }
+
+        function updateStats() {
+            creditsElement.textContent = credits;
+            spinBtn.disabled = credits < parseInt(betAmount.value);
+            betAmount.max = credits;
+        }
+
+        updateStats();
+    </script>
+</body>
+</html>
